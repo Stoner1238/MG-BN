@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>All Products | More Grace & Blessing</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    /* Optional inline style to make cart fixed on screen */
+    .cart {
+      position: fixed;
+      top: 0;
+      right: -100%;
+      width: 300px;
+      height: 100%;
+      background: #fff;
+      box-shadow: -2px 0 10px rgba(0,0,0,0.2);
+      padding: 20px;
+      overflow-y: auto;
+      transition: right 0.3s ease;
+      z-index: 9999;
+    }
+    .cart.open {
+      right: 0;
+    }
+    .open-cart-btn {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: #007bff;
+      color: #fff;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      z-index: 10000;
+    }
+    .cart-item {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 10px;
+      gap: 5px;
+      align-items: center;
+    }
+    .cart-item input {
+      width: 50px;
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="logo">More Grace & Blessing</div>
+    <nav class="navbar">
+      <a href="index.html">Home</a>
+    </nav>
+  </header>
+
+  <section class="products-page">
+    <div class="container">
+      <h2>Our Product Catalog</h2>
+      <p>Browse all our available plastic products and their fixed retail prices.</p>
+
+      <div class="product-grid">
+        <div class="product-card" data-name="Big Plastic Basket" data-price="2500">
+          <img src="https://images.unsplash.com/photo-1622094648865-7fa1b0a5c1b6" alt="Big Basket" />
+          <h3>Big Plastic Basket</h3>
+          <p>₦2,500</p>
+          <button class="order-btn">Order Now</button>
+        </div>
+
+        <div class="product-card" data-name="Big Plastic Basket" data-price="2500">
+          <img src="https://images.unsplash.com/photo-1622094648865-7fa1b0a5c1b6" alt="Big Basket" />
+          <h3>Big Plastic Basket</h3>
+          <p>₦2,500</p>
+          <button class="order-btn">Order Now</button>
+        </div>
+
+        <div class="product-card" data-name="Plastic Spoon Set" data-price="1000">
+          <img src="https://images.unsplash.com/photo-1578654014523-87f6fa0f0da3" alt="Plastic Spoon" />
+          <h3>Plastic Spoon Set</h3>
+          <p>₦1,000</p>
+          <button class="order-btn">Order Now</button>
+        </div>
+
+        <div class="product-card" data-name="Plastic Spoon Set" data-price="1000">
+          <img src="https://images.unsplash.com/photo-1578654014523-87f6fa0f0da3" alt="Plastic Spoon" />
+          <h3>Plastic Spoon Set</h3>
+          <p>₦1,000</p>
+          <button class="order-btn">Order Now</button>
+        </div>
+
+        <div class="product-card" data-name="Storage Container" data-price="3000">
+          <img src="https://images.unsplash.com/photo-1622094648865-7fa1b0a5c1b6" alt="Container" />
+          <h3>Storage Container</h3>
+          <p>₦3,000</p>
+          <button class="order-btn">Order Now</button>
+        </div>
+
+        <div class="product-card" data-name="Storage Container" data-price="3000">
+          <img src="https://images.unsplash.com/photo-1622094648865-7fa1b0a5c1b6" alt="Container" />
+          <h3>Storage Container</h3>
+          <p>₦3,000</p>
+          <button class="order-btn">Order Now</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div id="cart" class="cart">
+    <h3>Your Cart</h3>
+    <div id="cart-items"></div>
+    <div class="cart-total">
+      <strong>Total: </strong><span id="cart-total-price">₦0</span>
+    </div>
+    <button id="checkout-btn">Checkout</button>
+    <button id="close-cart">Close</button>
+  </div>
+  <button id="open-cart" class="open-cart-btn">Cart (0)</button>
+
+  <footer class="footer">
+    <div class="container">
+      <p>&copy; 2024 More Grace & Blessing Nigeria Enterprise. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script>
+    const cart = document.getElementById('cart');
+    const openCartBtn = document.getElementById('open-cart');
+    const closeCartBtn = document.getElementById('close-cart');
+    const cartItemsContainer = document.getElementById('cart-items');
+    const cartTotalPrice = document.getElementById('cart-total-price');
+    const checkoutBtn = document.getElementById('checkout-btn');
+
+    let cartItems = [];
+
+    function updateCart() {
+      cartItemsContainer.innerHTML = '';
+      let total = 0;
+      cartItems.forEach((item, index) => {
+        total += item.price * item.qty;
+        const itemDiv = document.createElement('div');
+        itemDiv.classList.add('cart-item');
+        itemDiv.innerHTML = `
+          <span class="cart-item-name">${item.name}</span>
+          <input type="number" min="1" class="cart-item-qty" value="${item.qty}" data-index="${index}" />
+          <span>₦${item.price * item.qty}</span>
+          <button class="cart-item-remove" data-index="${index}">&times;</button>
+        `;
+        cartItemsContainer.appendChild(itemDiv);
+      });
+      cartTotalPrice.textContent = '₦' + total.toLocaleString();
+      openCartBtn.textContent = `Cart (${cartItems.reduce((acc, cur) => acc + cur.qty, 0)})`;
+
+      document.querySelectorAll('.cart-item-qty').forEach(input => {
+        input.addEventListener('change', e => {
+          const idx = e.target.dataset.index;
+          let val = parseInt(e.target.value);
+          if (isNaN(val) || val < 1) val = 1;
+          cartItems[idx].qty = val;
+          updateCart();
+        });
+      });
+      document.querySelectorAll('.cart-item-remove').forEach(button => {
+        button.addEventListener('click', e => {
+          const idx = e.target.dataset.index;
+          cartItems.splice(idx, 1);
+          updateCart();
+        });
+      });
+    }
+
+    document.querySelectorAll('.order-btn').forEach(button => {
+      button.addEventListener('click', e => {
+        const productCard = e.target.closest('.product-card');
+        const name = productCard.dataset.name;
+        const price = parseInt(productCard.dataset.price);
+        const existingItem = cartItems.find(item => item.name === name);
+        if (existingItem) {
+          existingItem.qty++;
+        } else {
+          cartItems.push({name, price, qty: 1});
+        }
+        updateCart();
+        cart.classList.add('open');
+      });
+    });
+
+    openCartBtn.addEventListener('click', () => {
+      cart.classList.toggle('open');
+    });
+
+    closeCartBtn.addEventListener('click', () => {
+      cart.classList.remove('open');
+    });
+
+    checkoutBtn.addEventListener('click', () => {
+      if (cartItems.length === 0) {
+        alert('Your cart is empty!');
+        return;
+      }
+      let orderText = 'Hello, I would like to order the following products:\n';
+      cartItems.forEach(item => {
+        orderText += `- ${item.name} x${item.qty} = ₦${item.price * item.qty}\n`;
+      });
+      orderText += `Total: ₦${cartItems.reduce((acc, cur) => acc + cur.price * cur.qty, 0)}`;
+
+      const encodedText = encodeURIComponent(orderText);
+      const whatsappUrl = `https://wa.me/2347082798562?text=${encodedText}`;
+      window.open(whatsappUrl, '_blank');
+    });
+  </script>
+</body>
+</html>
